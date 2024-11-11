@@ -1,6 +1,6 @@
 <?php
 class GTS_Frontend_Styles {
-    private $options_name = 'global_text_size_settings';
+    private $options_name = 'text_size_adjust_settings';
     private $sizes = array('xxs', 'xs', 's', 'm', 'l', 'xl', 'xxl');
     private $wp_size_mapping = array(
         'has-small-font-size' => 's',
@@ -16,46 +16,71 @@ class GTS_Frontend_Styles {
 
     public function output_custom_styles() {
         $options = get_option($this->options_name);
+        $styles = array();
         
-        echo "<!-- Global Text Size Styles Start -->\n";
-        echo "<style type='text/css'>\n";
-
-	//styles of desktop
-        echo "@media screen and (min-width: 769px) {\n";
+        // Desktop styles
+        $desktop_styles = array();
         foreach ($this->sizes as $size) {
             $option_key = 'desktop_' . $size;
             $value = isset($options[$option_key]) && !empty($options[$option_key])
                 ? intval($options[$option_key])
                 : $this->get_default_size($size);
             
-            echo "  .has-text-{$size} { font-size: {$value}px !important; }\n";
+            $desktop_styles[] = sprintf(
+                '.has-text-%1$s { font-size: %2$dpx !important; }',
+                esc_attr($size),
+                absint($value)
+            );
             
             $wp_class = array_search($size, $this->wp_size_mapping);
             if ($wp_class) {
-                echo "  .{$wp_class} { font-size: {$value}px !important; }\n";
+                $desktop_styles[] = sprintf(
+                    '.%1$s { font-size: %2$dpx !important; }',
+                    esc_attr($wp_class),
+                    absint($value)
+                );
             }
         }
-        echo "}\n";
-
-        // style of mobile
-        echo "@media screen and (max-width: 768px) {\n";
+        
+        // Mobile styles
+        $mobile_styles = array();
         foreach ($this->sizes as $size) {
             $option_key = 'mobile_' . $size;
             $value = isset($options[$option_key]) && !empty($options[$option_key])
                 ? intval($options[$option_key])
                 : $this->get_default_size($size, true);
             
-            echo "  .has-text-{$size} { font-size: {$value}px !important; }\n";
+            $mobile_styles[] = sprintf(
+                '.has-text-%1$s { font-size: %2$dpx !important; }',
+                esc_attr($size),
+                absint($value)
+            );
             
             $wp_class = array_search($size, $this->wp_size_mapping);
             if ($wp_class) {
-                echo "  .{$wp_class} { font-size: {$value}px !important; }\n";
+                $mobile_styles[] = sprintf(
+                    '.%1$s { font-size: %2$dpx !important; }',
+                    esc_attr($wp_class),
+                    absint($value)
+                );
             }
         }
-        echo "}\n";
-        
-        echo "</style>\n";
-        echo "<!-- Global Text Size Styles End -->\n";
+
+        // Prepare the styles
+        $desktop_styles = implode("\n    ", $desktop_styles);
+        $mobile_styles = implode("\n    ", $mobile_styles);
+
+        // Output the styles safely
+        ?>
+        <style type="text/css">
+            @media screen and (min-width: 769px) {
+                <?php echo esc_html(wp_strip_all_tags($desktop_styles)); ?>
+            }
+            @media screen and (max-width: 768px) {
+                <?php echo esc_html(wp_strip_all_tags($mobile_styles)); ?>
+            }
+        </style>
+        <?php
     }
 
     private function get_default_size($size, $is_mobile = false) {

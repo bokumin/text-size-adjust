@@ -15,17 +15,14 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Define plugin constants
 define('GTS_VERSION', '1.0.0');
 define('GTS_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GTS_PLUGIN_URL', plugin_dir_url(__FILE__));
 
-// Load text domain for translations
 add_action('init', function() {
-    load_plugin_textdomain('global-text-size', false, dirname(plugin_basename(__FILE__)) . '/languages');
+    load_plugin_textdomain('text-size-adjust', false, dirname(plugin_basename(__FILE__)) . '/languages');
 });
 
-// Include required files
 require_once GTS_PLUGIN_DIR . 'includes/class-admin-settings.php';
 require_once GTS_PLUGIN_DIR . 'includes/class-frontend-styles.php';
 
@@ -56,25 +53,25 @@ class Text_Size_Adjust {
 
     public function register_assets() {
         wp_register_style(
-            'global-text-size-admin',
+            'text-size-adjust-admin',
             GTS_PLUGIN_URL . 'assets/css/admin-style.css',
             array(),
             GTS_VERSION
         );
 
         wp_register_script(
-            'global-text-size-editor',
+            'text-size-adjust-editor',
             GTS_PLUGIN_URL . 'assets/js/text-size-support.js',
             array('wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-i18n'),
             GTS_VERSION,
             true
         );
 
-        wp_set_script_translations('global-text-size-editor', 'global-text-size', GTS_PLUGIN_DIR . 'languages');
+        wp_set_script_translations('text-size-adjust-editor', 'text-size-adjust', GTS_PLUGIN_DIR . 'languages');
     }
 
     public function enqueue_editor_assets() {
-        wp_enqueue_script('global-text-size-editor');
+        wp_enqueue_script('text-size-adjust-editor');
     }
 }
 
@@ -87,5 +84,5 @@ add_action('plugins_loaded', 'text_size_adjust_init');
 register_uninstall_hook(__FILE__, 'text_size_adjust_uninstall');
 
 function text_size_adjust_uninstall() {
-    delete_option('global_text_size_settings');
+    delete_option('text_size_adjust_settings');
 }

@@ -1,7 +1,8 @@
 <?php
 class GTS_Admin_Settings {
-    private $options_name = 'global_text_size_settings';
+    private $options_name = 'text_size_adjust_settings';
     private $sizes = array('xxs', 'xs', 's', 'm', 'l', 'xl', 'xxl');
+    
     public function __construct() {
         add_action('admin_menu', array($this, 'add_settings_page'));
         add_action('admin_init', array($this, 'register_settings'));
@@ -9,19 +10,19 @@ class GTS_Admin_Settings {
     }
 
     public function enqueue_admin_assets($hook) {
-        if ('settings_page_global-text-size' !== $hook) {
+        if ('settings_page_text-size-adjust' !== $hook) {
             return;
         }
 
         wp_enqueue_style(
-            'global-text-size-admin',
+            'text-size-adjust-admin',
             GTS_PLUGIN_URL . 'assets/css/admin-style.css',
             array(),
             GTS_VERSION
         );
 
         wp_enqueue_script(
-            'global-text-size-admin',
+            'text-size-adjust-admin',
             GTS_PLUGIN_URL . 'assets/js/admin-settings.js',
             array('jquery'),
             GTS_VERSION,
@@ -31,10 +32,10 @@ class GTS_Admin_Settings {
 
     public function add_settings_page() {
         add_options_page(
-            __('テキストサイズ設定', 'global-text-size'),
-            __('テキストサイズ設定', 'global-text-size'),
+            esc_html__('Text Size Settings', 'text-size-adjust'),
+            esc_html__('Text Size Settings', 'text-size-adjust'),
             'manage_options',
-            'global-text-size',
+            'text-size-adjust',
             array($this, 'render_settings_page')
         );
     }
@@ -44,30 +45,29 @@ class GTS_Admin_Settings {
             'sanitize_callback' => array($this, 'sanitize_settings')
         ));
 
-        // デスクトップ設定セクション
         add_settings_section(
             'desktop_settings',
-            __('デスクトップ設定', 'global-text-size'),
+            esc_html__('Settings Of Desktop', 'text-size-adjust'),
             array($this, 'render_desktop_description'),
-            'global-text-size'
+            'text-size-adjust'
         );
 
-        // モバイル設定セクション
         add_settings_section(
             'mobile_settings',
-            __('モバイル設定', 'global-text-size'),
+            esc_html__('Settings Of Mobile', 'text-size-adjust'),
             array($this, 'render_mobile_description'),
-            'global-text-size'
+            'text-size-adjust'
         );
 
-        // 各サイズの設定フィールドを追加
         foreach ($this->sizes as $size) {
-            // デスクトップ設定
+            /* translators: %s: Size identifier (XXS, XS, S, M, L, XL, XXL) */
+            $label = sprintf(esc_html__('Size %s', 'text-size-adjust'), strtoupper($size));
+            
             add_settings_field(
                 'desktop_' . $size,
-                sprintf(__('サイズ %s', 'global-text-size'), strtoupper($size)),
+                $label,
                 array($this, 'render_size_field'),
-                'global-text-size',
+                'text-size-adjust',
                 'desktop_settings',
                 array(
                     'label_for' => 'desktop_' . $size,
@@ -77,12 +77,11 @@ class GTS_Admin_Settings {
                 )
             );
 
-            // モバイル設定
             add_settings_field(
                 'mobile_' . $size,
-                sprintf(__('サイズ %s', 'global-text-size'), strtoupper($size)),
+                $label,
                 array($this, 'render_size_field'),
-                'global-text-size',
+                'text-size-adjust',
                 'mobile_settings',
                 array(
                     'label_for' => 'mobile_' . $size,
@@ -95,11 +94,17 @@ class GTS_Admin_Settings {
     }
 
     public function render_desktop_description() {
-        echo '<p class="description">' . __('Set font sizes for desktop display (769px and above).', 'global-text-size') . '</p>';
+        echo wp_kses_post('<p class="description">' . 
+            esc_html__('Set font sizes for desktop display (769px and above).', 'text-size-adjust') . 
+            '</p>'
+        );
     }
 
     public function render_mobile_description() {
-        echo '<p class="description">' . __('Set font sizes for mobile display (768px and below).', 'global-text-size') . '</p>';
+        echo wp_kses_post('<p class="description">' . 
+            esc_html__('Set font sizes for mobile display (768px and below).', 'text-size-adjust') . 
+            '</p>'
+        );
     }
 
     private function get_default_size($size, $is_mobile = false) {
@@ -121,7 +126,7 @@ class GTS_Admin_Settings {
             ? $options[$args['label_for']] 
             : $args['default'];
         
-        $preview_text = __('ABCDEFGabcdefg123456', 'global-text-size');
+        $preview_text = esc_html__('ABCDEFGabcdefg123456', 'text-size-adjust');
         
         echo '<div class="size-field-container">';
         
@@ -136,16 +141,16 @@ class GTS_Admin_Settings {
                 class="size-input" 
                 data-size="%4$s"
                 data-device="%5$s"
-            /> px',
+            /> %6$s',
             esc_attr($args['label_for']),
             esc_attr($this->options_name),
             esc_attr($value),
             esc_attr($args['size']),
-            esc_attr($args['device'])
+            esc_attr($args['device']),
+            esc_html__('px', 'text-size-adjust')
         );
         echo '</div>';
 
-        // プレビュー表示
         printf(
             '<div class="size-preview preview-%1$s" style="font-size: %2$spx">
                 <span class="preview-text">%3$s</span>
@@ -164,21 +169,21 @@ class GTS_Admin_Settings {
             return;
         }
         ?>
-        <div class="wrap global-text-size-settings">
+        <div class="wrap text-size-adjust-settings">
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
             
             <div class="settings-header">
                 <div class="settings-description">
-                    <p><?php _e('This plugin allows you to configure text sizes that can be used throughout your site.', 'global-text-size'); ?></p>
-                    <p><?php _e('You can set different sizes for desktop and mobile displays.', 'global-text-size'); ?></p>
+                    <p><?php esc_html_e('This plugin allows you to configure text sizes that can be used throughout your site.', 'text-size-adjust'); ?></p>
+                    <p><?php esc_html_e('You can set different sizes for desktop and mobile displays.', 'text-size-adjust'); ?></p>
                 </div>
                 
                 <div class="settings-tips">
-                    <h3><?php _e('Usage Tips', 'global-text-size'); ?></h3>
+                    <h3><?php esc_html_e('Usage Tips', 'text-size-adjust'); ?></h3>
                     <ul>
-                        <li><?php _e('Select text in the block editor and choose a size from the "Text Size Settings" in the sidebar.', 'global-text-size'); ?></li>
-                        <li><?php _e('You can also add the HTML class "has-text-[size]" to specify the size.', 'global-text-size'); ?></li>
-                        <li><?php _e('Available sizes are: xxs, xs, s, m, l, xl, xxl.', 'global-text-size'); ?></li>
+                        <li><?php esc_html_e('Select text in the block editor and choose a size from the "Text Size Settings" in the sidebar.', 'text-size-adjust'); ?></li>
+                        <li><?php esc_html_e('You can also add the HTML class "has-text-[size]" to specify the size.', 'text-size-adjust'); ?></li>
+                        <li><?php esc_html_e('Available sizes are: xxs, xs, s, m, l, xl, xxl.', 'text-size-adjust'); ?></li>
                     </ul>
                 </div>
             </div>
@@ -186,8 +191,8 @@ class GTS_Admin_Settings {
             <form action="options.php" method="post">
                 <?php
                 settings_fields($this->options_name);
-                do_settings_sections('global-text-size');
-                submit_button(__('Save Settings', 'global-text-size'));
+                do_settings_sections('text-size-adjust');
+                submit_button(esc_html__('Save Settings', 'text-size-adjust'));
                 ?>
             </form>
         </div>
