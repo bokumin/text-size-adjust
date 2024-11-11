@@ -1,0 +1,10 @@
+.has-text-xxs,
+.has-text-xs,
+.has-text-s,
+.has-text-m,
+.has-text-l,
+.has-text-xl,
+.has-text-xxl {
+    line-height: 1.5;
+    transition: font-size 0.3s ease;
+}

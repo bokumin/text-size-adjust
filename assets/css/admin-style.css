@@ -1,0 +1,131 @@
+.global-text-size-settings {
+    max-width: 1200px;
+    margin: 20px 0;
+    background: #fff;
+    padding: 20px 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.settings-header {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    border-left: 4px solid #2271b1;
+}
+
+.settings-description {
+    margin-bottom: 20px;
+}
+
+.settings-description p {
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 0 10px;
+}
+
+.settings-tips {
+    background: #fff;
+    padding: 15px 20px;
+    border-radius: 4px;
+    border: 1px solid #e5e5e5;
+}
+
+.settings-tips h3 {
+    margin: 0 0 10px;
+    font-size: 16px;
+    color: #1d2327;
+}
+
+.settings-tips ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.settings-tips li {
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 8px;
+    color: #50575e;
+}
+
+.form-table {
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.form-table th {
+    width: 200px;
+    padding: 20px;
+    vertical-align: top;
+}
+
+.form-table td {
+    padding: 15px 20px;
+}
+
+.size-field-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.size-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.size-input {
+    width: 80px !important;
+    height: 36px;
+    padding: 4px 8px;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.size-preview {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 15px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    min-width: 300px;
+}
+
+.preview-text {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.preview-size {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+}
+
+.form-table .description {
+    font-size: 13px;
+    font-style: italic;
+    color: #666;
+    margin: 5px 0 15px;
+}
+
+.submit {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e5e5;
+}
+
+.submit .button-primary {
+    padding: 6px 20px;
+    height: auto;
+    line-height: 1.4;
+    font-size: 14px;
+}
