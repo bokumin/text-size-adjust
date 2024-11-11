@@ -15,7 +15,7 @@
     };
 
     const TEXT_SIZES = [
-        { label: __('デフォルト'), value: '' },
+        { label: __('Default'), value: '' },
         { label: 'XXS', value: 'xxs' },
         { label: 'XS', value: 'xs' },
         { label: 'S', value: 's' },
@@ -83,9 +83,9 @@
                 <Fragment>
                     <BlockEdit {...props} />
                     <InspectorControls>
-                        <PanelBody title={__('テキストサイズ設定')}>
+                        <PanelBody title={__('Text Size Settings')}>
                             <SelectControl
-                                label={__('サイズ')}
+                                label={__('Size')}
                                 value={getCurrentSize()}
                                 options={TEXT_SIZES}
                                 onChange={onChangeTextSize}

@@ -1,13 +1,14 @@
 <?php
 /**
  * Plugin Name: Text Size Adjust
- * Plugin URI: https://example.com/plugins/global-text-size
+ * Plugin URI: https://github.com/bokumin/text-size-adjust
  * Description: WordPress plugin to globally configure text sizes
  * Version: 1.0.0
  * Author: bokumin
- * Author URI: https://example.com
+ * Author URI: https://bokumin45.server-on.net
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: text-size-adjust
  */
 
 if (!defined('ABSPATH')) {
