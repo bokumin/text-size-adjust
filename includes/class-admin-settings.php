@@ -32,10 +32,67 @@ class GTS_Admin_Settings {
         wp_enqueue_script(
             'text-size-adjust-admin',
             GTS_PLUGIN_URL . 'assets/js/admin-settings.js',
-            array('jquery'),
+            array('jquery', 'jquery-ui-tabs'),
             GTS_VERSION,
             true
         );
+        
+        // カスタムスタイルをインラインで追加
+        $custom_css = "
+            #text-size-tabs > ul {
+                display: flex;
+                gap: 10px;
+                border: none;
+                background: none;
+                padding: 0;
+                margin-bottom: 20px;
+            }
+            #text-size-tabs > ul::before {
+                display: none;
+            }
+            #text-size-tabs > ul li {
+                margin: 0;
+                padding: 0;
+                border: none;
+                background: none;
+                float: none;
+            }
+            #text-size-tabs > ul li a {
+                display: inline-block;
+                padding: 10px 20px;
+                background: #f0f0f1;
+                border: 1px solid #c3c4c7;
+                border-radius: 4px;
+                text-decoration: none;
+                color: #50575e;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            }
+            #text-size-tabs > ul li a:hover {
+                background: #fff;
+                border-color: #8c8f94;
+                color: #1d2327;
+            }
+            #text-size-tabs > ul li.ui-state-active a {
+                background: #2271b1;
+                border-color: #2271b1;
+                color: #fff;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            }
+            #text-size-tabs > ul li.ui-state-active a:hover {
+                background: #135e96;
+                border-color: #135e96;
+            }
+            #text-size-tabs .ui-tabs-panel {
+                padding: 20px;
+                background: #fff;
+                border: 1px solid #c3c4c7;
+                border-radius: 4px;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            }
+        ";
+        wp_add_inline_style('text-size-adjust-admin', $custom_css);
     }
 
     public function add_settings_page() {
@@ -53,43 +110,69 @@ class GTS_Admin_Settings {
             'sanitize_callback' => array($this, 'sanitize_settings')
         ));
 
-        // Add new section for page settings
+        // Desktop settings sections
         add_settings_section(
-            'page_settings',
-            esc_html__('Page Settings', 'text-size-adjust'),
+            'desktop_page_settings',
+            esc_html__('Desktop Page Settings', 'text-size-adjust'),
             array($this, 'render_page_settings_description'),
-            'text-size-adjust'
+            'text-size-adjust-desktop'
         );
 
         add_settings_section(
             'desktop_settings',
-            esc_html__('Settings Of Desktop', 'text-size-adjust'),
+            esc_html__('Desktop Font Sizes', 'text-size-adjust'),
             array($this, 'render_desktop_description'),
-            'text-size-adjust'
+            'text-size-adjust-desktop'
+        );
+
+        // Mobile settings sections
+        add_settings_section(
+            'mobile_page_settings',
+            esc_html__('Mobile Page Settings', 'text-size-adjust'),
+            array($this, 'render_page_settings_description'),
+            'text-size-adjust-mobile'
         );
 
         add_settings_section(
             'mobile_settings',
-            esc_html__('Settings Of Mobile', 'text-size-adjust'),
+            esc_html__('Mobile Font Sizes', 'text-size-adjust'),
             array($this, 'render_mobile_description'),
-            'text-size-adjust'
+            'text-size-adjust-mobile'
         );
 
-        // Add page settings fields
+        // Register desktop page settings fields
         foreach ($this->page_options as $key => $label) {
             add_settings_field(
-                'page_' . $key,
+                'desktop_page_' . $key,
                 esc_html($label),
                 array($this, 'render_page_field'),
-                'text-size-adjust',
-                'page_settings',
+                'text-size-adjust-desktop',
+                'desktop_page_settings',
                 array(
-                    'label_for' => 'page_' . $key,
-                    'key' => $key
+                    'label_for' => 'desktop_page_' . $key,
+                    'key' => $key,
+                    'device' => 'desktop'
                 )
             );
         }
 
+        // Register mobile page settings fields
+        foreach ($this->page_options as $key => $label) {
+            add_settings_field(
+                'mobile_page_' . $key,
+                esc_html($label),
+                array($this, 'render_page_field'),
+                'text-size-adjust-mobile',
+                'mobile_page_settings',
+                array(
+                    'label_for' => 'mobile_page_' . $key,
+                    'key' => $key,
+                    'device' => 'mobile'
+                )
+            );
+        }
+
+        // Register size fields for desktop
         foreach ($this->sizes as $size) {
             /* translators: %s: Size identifier (XXS, XS, S, M, L, XL, XXL) */
             $label = sprintf(esc_html__('Size %s', 'text-size-adjust'), strtoupper($size));
@@ -98,7 +181,7 @@ class GTS_Admin_Settings {
                 'desktop_' . $size,
                 $label,
                 array($this, 'render_size_field'),
-                'text-size-adjust',
+                'text-size-adjust-desktop',
                 'desktop_settings',
                 array(
                     'label_for' => 'desktop_' . $size,
@@ -107,12 +190,18 @@ class GTS_Admin_Settings {
                     'device' => 'desktop'
                 )
             );
+        }
 
+        // Register size fields for mobile
+        foreach ($this->sizes as $size) {
+            /* translators: %s: Size identifier (XXS, XS, S, M, L, XL, XXL) */
+            $label = sprintf(esc_html__('Size %s', 'text-size-adjust'), strtoupper($size));
+            
             add_settings_field(
                 'mobile_' . $size,
                 $label,
                 array($this, 'render_size_field'),
-                'text-size-adjust',
+                'text-size-adjust-mobile',
                 'mobile_settings',
                 array(
                     'label_for' => 'mobile_' . $size,
@@ -134,18 +223,20 @@ class GTS_Admin_Settings {
     public function render_page_field($args) {
         $options = get_option($this->options_name);
         $key = $args['key'];
-        $field_id = 'page_' . $key;
-        $checked = isset($options['pages'][$key]) ? $options['pages'][$key] : true;
+        $device = $args['device'];
+        $field_id = $device . '_page_' . $key;
+        $checked = isset($options[$device]['pages'][$key]) ? $options[$device]['pages'][$key] : true;
 
         printf(
             '<input type="checkbox" 
                 id="%1$s" 
-                name="%2$s[pages][%3$s]" 
+                name="%2$s[%3$s][pages][%4$s]" 
                 value="1" 
-                %4$s
+                %5$s
             />',
             esc_attr($field_id),
             esc_attr($this->options_name),
+            esc_attr($device),
             esc_attr($key),
             checked($checked, true, false)
         );
@@ -175,13 +266,17 @@ class GTS_Admin_Settings {
             'xl'  => $is_mobile ? 18 : 24,
             'xxl' => $is_mobile ? 20 : 32
         );
-        return $defaults[$size];
+        return isset($defaults[$size]) ? $defaults[$size] : 16;
     }
 
     public function render_size_field($args) {
         $options = get_option($this->options_name);
-        $value = isset($options[$args['label_for']]) 
-            ? $options[$args['label_for']] 
+        $device = $args['device'];
+        $size = $args['size'];
+        $field_id = $device . '_' . $size;
+        
+        $value = isset($options[$device]['sizes'][$size]) 
+            ? $options[$device]['sizes'][$size] 
             : $args['default'];
         
         $preview_text = esc_html__('ABCDEFGabcdefg123456', 'text-size-adjust');
@@ -192,19 +287,19 @@ class GTS_Admin_Settings {
         printf(
             '<input type="number" 
                 id="%1$s" 
-                name="%2$s[%1$s]" 
-                value="%3$s" 
+                name="%2$s[%3$s][sizes][%4$s]" 
+                value="%5$s" 
                 min="8" 
                 max="100" 
                 class="size-input" 
                 data-size="%4$s"
-                data-device="%5$s"
+                data-device="%3$s"
             /> %6$s',
-            esc_attr($args['label_for']),
+            esc_attr($field_id),
             esc_attr($this->options_name),
+            esc_attr($device),
+            esc_attr($size),
             esc_attr($value),
-            esc_attr($args['size']),
-            esc_attr($args['device']),
             esc_html__('px', 'text-size-adjust')
         );
         echo '</div>';
@@ -214,7 +309,7 @@ class GTS_Admin_Settings {
                 <span class="preview-text">%3$s</span>
                 <span class="preview-size">%2$spx</span>
             </div>',
-            esc_attr($args['size']),
+            esc_attr($size),
             esc_attr($value),
             esc_html($preview_text)
         );
@@ -247,11 +342,24 @@ class GTS_Admin_Settings {
             </div>
 
             <form action="options.php" method="post">
-                <?php
-                settings_fields($this->options_name);
-                do_settings_sections('text-size-adjust');
-                submit_button(esc_html__('Save Settings', 'text-size-adjust'));
-                ?>
+                <?php settings_fields($this->options_name); ?>
+                
+                <div id="text-size-tabs">
+                    <ul>
+                        <li><a href="#desktop-tab"><?php esc_html_e('Desktop Settings', 'text-size-adjust'); ?></a></li>
+                        <li><a href="#mobile-tab"><?php esc_html_e('Mobile Settings', 'text-size-adjust'); ?></a></li>
+                    </ul>
+                    
+                    <div id="desktop-tab">
+                        <?php do_settings_sections('text-size-adjust-desktop'); ?>
+                    </div>
+                    
+                    <div id="mobile-tab">
+                        <?php do_settings_sections('text-size-adjust-mobile'); ?>
+                    </div>
+                </div>
+
+                <?php submit_button(esc_html__('Save Settings', 'text-size-adjust')); ?>
             </form>
         </div>
         <?php
@@ -260,18 +368,49 @@ class GTS_Admin_Settings {
     public function sanitize_settings($input) {
         $sanitized_input = array();
         
-        // Sanitize page settings
-        if (isset($input['pages'])) {
-            $sanitized_input['pages'] = array();
-            foreach ($this->page_options as $key => $label) {
-                $sanitized_input['pages'][$key] = isset($input['pages'][$key]) ? true : false;
+        // Sanitize desktop settings
+        if (isset($input['desktop'])) {
+            $sanitized_input['desktop'] = array();
+            
+            // Sanitize desktop page settings
+            if (isset($input['desktop']['pages'])) {
+                $sanitized_input['desktop']['pages'] = array();
+                foreach ($this->page_options as $key => $label) {
+$sanitized_input['desktop']['pages'][$key] = isset($input['desktop']['pages'][$key]) ? true : false;
+                }
+            }
+            
+            // Sanitize desktop size settings
+            if (isset($input['desktop']['sizes'])) {
+                $sanitized_input['desktop']['sizes'] = array();
+                foreach ($this->sizes as $size) {
+                    if (isset($input['desktop']['sizes'][$size])) {
+                        $sanitized_input['desktop']['sizes'][$size] = absint($input['desktop']['sizes'][$size]);
+                    }
+                }
             }
         }
-
-        // Sanitize size settings
-        foreach ($input as $key => $value) {
-            if (strpos($key, 'desktop_') === 0 || strpos($key, 'mobile_') === 0) {
-                $sanitized_input[$key] = absint($value);
+        
+        // Sanitize mobile settings
+        if (isset($input['mobile'])) {
+            $sanitized_input['mobile'] = array();
+            
+            // Sanitize mobile page settings
+            if (isset($input['mobile']['pages'])) {
+                $sanitized_input['mobile']['pages'] = array();
+                foreach ($this->page_options as $key => $label) {
+                    $sanitized_input['mobile']['pages'][$key] = isset($input['mobile']['pages'][$key]) ? true : false;
+                }
+            }
+            
+            // Sanitize mobile size settings
+            if (isset($input['mobile']['sizes'])) {
+                $sanitized_input['mobile']['sizes'] = array();
+                foreach ($this->sizes as $size) {
+                    if (isset($input['mobile']['sizes'][$size])) {
+                        $sanitized_input['mobile']['sizes'][$size] = absint($input['mobile']['sizes'][$size]);
+                    }
+                }
             }
         }
 
