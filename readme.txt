@@ -3,7 +3,7 @@ Contributors: bokumin
 Tags: typography, font-size, responsive, text-size, editor
 Requires at least: 5.0
 Tested up to: 6.6
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -22,6 +22,7 @@ Text Size Adjust is a powerful WordPress plugin that allows you to globally conf
 * Integration with the WordPress block editor
 * Compatible with default WordPress font size classes
 * Simple class-based implementation
+* Selective page-specific text size adjustments through admin panel checkboxes
 
 = Usage =
 
@@ -34,6 +35,11 @@ Text Size Adjust is a powerful WordPress plugin that allows you to globally conf
    * Add the class `has-text-[size]` to any element
    * Available sizes: xxs, xs, s, m, l, xl, xxl
    * Example: `<p class="has-text-m">Medium text</p>`
+
+3. In Admin Settings:
+   * Navigate to Settings > Text Size Settings
+   * Configure global text sizes for desktop and mobile
+   * Use checkboxes to select specific pages where text size adjustments should apply
 
 = WordPress Font Size Compatibility =
 
@@ -50,6 +56,7 @@ The plugin automatically maps WordPress default font size classes to correspondi
 1. Upload the `text-size-adjust` folder to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Go to Settings > Text Size Settings to configure your text sizes
+4. Select the pages where you want to apply text size adjustments
 
 == Frequently Asked Questions ==
 
@@ -69,18 +76,31 @@ Yes, you can override the plugin's styles using more specific CSS selectors in y
 
 Navigate to Settings > Text Size Settings, where you'll find separate configuration sections for desktop and mobile views.
 
+= Can I choose which pages use the text size adjustments? =
+
+Yes, in version 1.1.0 we've added checkboxes in the admin panel that allow you to select specific pages where the text size adjustments should be applied.
+
 == Screenshots ==
 
 1. Settings page with desktop and mobile configurations
 2. Block editor integration
 3. Front-end display example
+4. Page selection checkboxes in admin panel
 
 == Changelog ==
+
+= 1.1.0 =
+* Added page selection feature through admin panel checkboxes
+* Improved settings page layout
+* Added page-specific text size control
 
 = 1.0.0 =
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Added the ability to select specific pages for text size adjustments through admin panel checkboxes.
 
 = 1.0.0 =
 Initial release of Text Size Adjust plugin.

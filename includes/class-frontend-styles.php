@@ -14,7 +14,43 @@ class GTS_Frontend_Styles {
         add_action('wp_head', array($this, 'output_custom_styles'), 100);
     }
 
+    public function should_apply_styles() {
+        $options = get_option($this->options_name);
+        $page_settings = isset($options['pages']) ? $options['pages'] : array();
+        
+        // デフォルトで全てのページに適用
+        if (empty($page_settings)) {
+            return true;
+        }
+
+        // 各ページタイプをチェック
+        if (is_front_page() && isset($page_settings['home']) && $page_settings['home']) {
+            return true;
+        }
+        if (is_single() && isset($page_settings['posts']) && $page_settings['posts']) {
+            return true;
+        }
+        if (is_page() && isset($page_settings['pages']) && $page_settings['pages']) {
+            return true;
+        }
+        if (is_archive() && isset($page_settings['archives']) && $page_settings['archives']) {
+            return true;
+        }
+        if (is_search() && isset($page_settings['search']) && $page_settings['search']) {
+            return true;
+        }
+        if (is_404() && isset($page_settings['error404']) && $page_settings['error404']) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function output_custom_styles() {
+        if (!$this->should_apply_styles()) {
+            return;
+        }
+
         $options = get_option($this->options_name);
         $styles = array();
         

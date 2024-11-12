@@ -2,6 +2,14 @@
 class GTS_Admin_Settings {
     private $options_name = 'text_size_adjust_settings';
     private $sizes = array('xxs', 'xs', 's', 'm', 'l', 'xl', 'xxl');
+    private $page_options = array(
+        'home' => 'Homepage',
+        'posts' => 'Posts/Articles',
+        'pages' => 'Pages',
+        'archives' => 'Archive Pages',
+        'search' => 'Search Results',
+        'error404' => '404 Page'
+    );
     
     public function __construct() {
         add_action('admin_menu', array($this, 'add_settings_page'));
@@ -45,6 +53,14 @@ class GTS_Admin_Settings {
             'sanitize_callback' => array($this, 'sanitize_settings')
         ));
 
+        // Add new section for page settings
+        add_settings_section(
+            'page_settings',
+            esc_html__('Page Settings', 'text-size-adjust'),
+            array($this, 'render_page_settings_description'),
+            'text-size-adjust'
+        );
+
         add_settings_section(
             'desktop_settings',
             esc_html__('Settings Of Desktop', 'text-size-adjust'),
@@ -58,6 +74,21 @@ class GTS_Admin_Settings {
             array($this, 'render_mobile_description'),
             'text-size-adjust'
         );
+
+        // Add page settings fields
+        foreach ($this->page_options as $key => $label) {
+            add_settings_field(
+                'page_' . $key,
+                esc_html($label),
+                array($this, 'render_page_field'),
+                'text-size-adjust',
+                'page_settings',
+                array(
+                    'label_for' => 'page_' . $key,
+                    'key' => $key
+                )
+            );
+        }
 
         foreach ($this->sizes as $size) {
             /* translators: %s: Size identifier (XXS, XS, S, M, L, XL, XXL) */
@@ -91,6 +122,33 @@ class GTS_Admin_Settings {
                 )
             );
         }
+    }
+
+    public function render_page_settings_description() {
+        echo wp_kses_post('<p class="description">' . 
+            esc_html__('Select which pages should have the text size adjustments applied.', 'text-size-adjust') . 
+            '</p>'
+        );
+    }
+
+    public function render_page_field($args) {
+        $options = get_option($this->options_name);
+        $key = $args['key'];
+        $field_id = 'page_' . $key;
+        $checked = isset($options['pages'][$key]) ? $options['pages'][$key] : true;
+
+        printf(
+            '<input type="checkbox" 
+                id="%1$s" 
+                name="%2$s[pages][%3$s]" 
+                value="1" 
+                %4$s
+            />',
+            esc_attr($field_id),
+            esc_attr($this->options_name),
+            esc_attr($key),
+            checked($checked, true, false)
+        );
     }
 
     public function render_desktop_description() {
@@ -175,7 +233,7 @@ class GTS_Admin_Settings {
             <div class="settings-header">
                 <div class="settings-description">
                     <p><?php esc_html_e('This plugin allows you to configure text sizes that can be used throughout your site.', 'text-size-adjust'); ?></p>
-                    <p><?php esc_html_e('You can set different sizes for desktop and mobile displays.', 'text-size-adjust'); ?></p>
+                    <p><?php esc_html_e('You can set different sizes for desktop and mobile displays, and choose which pages to apply these settings to.', 'text-size-adjust'); ?></p>
                 </div>
                 
                 <div class="settings-tips">
@@ -201,9 +259,22 @@ class GTS_Admin_Settings {
 
     public function sanitize_settings($input) {
         $sanitized_input = array();
-        foreach ($input as $key => $value) {
-            $sanitized_input[$key] = absint($value);
+        
+        // Sanitize page settings
+        if (isset($input['pages'])) {
+            $sanitized_input['pages'] = array();
+            foreach ($this->page_options as $key => $label) {
+                $sanitized_input['pages'][$key] = isset($input['pages'][$key]) ? true : false;
+            }
         }
+
+        // Sanitize size settings
+        foreach ($input as $key => $value) {
+            if (strpos($key, 'desktop_') === 0 || strpos($key, 'mobile_') === 0) {
+                $sanitized_input[$key] = absint($value);
+            }
+        }
+
         return $sanitized_input;
     }
 }
