@@ -1,5 +1,5 @@
 <?php
-class GTS_Admin_Settings {
+class Text_Size_Adjust_Admin_Settings {
     private $options_name = 'text_size_adjust_settings';
     private $sizes = array('xxs', 'xs', 's', 'm', 'l', 'xl', 'xxl');
     private $page_options = array(
@@ -24,20 +24,22 @@ class GTS_Admin_Settings {
 
         wp_enqueue_style(
             'text-size-adjust-admin',
-            GTS_PLUGIN_URL . 'assets/css/admin-style.css',
+            TEXT_SIZE_ADJUST_PLUGIN_URL . 'assets/css/admin-style.css',
             array(),
-            GTS_VERSION
+            TEXT_SIZE_ADJUST_VERSION
         );
 
         wp_enqueue_script(
             'text-size-adjust-admin',
-            GTS_PLUGIN_URL . 'assets/js/admin-settings.js',
+            TEXT_SIZE_ADJUST_PLUGIN_URL . 'assets/js/admin-settings.js',
             array('jquery', 'jquery-ui-tabs'),
-            GTS_VERSION,
-            true
+            TEXT_SIZE_ADJUST_VERSION,
+            array(
+                'in_footer' => true,
+                'strategy' => 'defer'
+            )
         );
         
-        // カスタムスタイルをインラインで追加
         $custom_css = "
             #text-size-tabs > ul {
                 display: flex;
