@@ -3,7 +3,7 @@
  * Plugin Name: Text Size Adjust
  * Plugin URI: https://github.com/bokumin/text-size-adjust
  * Description: WordPress plugin to globally configure text sizes
- * Version: 1.1.1
+ * Version: 1.1.2
  * Author: bokumin
  * Author URI: https://bokumin45.server-on.net
  * License: GPL v2 or later
