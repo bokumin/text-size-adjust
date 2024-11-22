@@ -1,5 +1,4 @@
 <?php
-<?php
 class Text_Size_Adjust_Frontend_Styles {
     private $options_name = 'text_size_adjust_settings';
     private $sizes = array('xxs', 'xs', 's', 'm', 'l', 'xl', 'xxl');
